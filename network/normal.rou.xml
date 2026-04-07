@@ -1,0 +1,11 @@
+<routes>
+    <vType id="standard_car" accel="2.6" decel="4.5" sigma="0.5" length="5" maxSpeed="20"/>
+    
+    <flow id="flow_NS" type="standard_car" begin="0" end="3600" vehsPerHour="1000" from="-E10" to="E11" />
+    
+    <flow id="flow_EW" type="standard_car" begin="0" end="3600" vehsPerHour="800" from="-E12" to="E13" />
+
+    <flow id="flow_SN" type="standard_car" begin="0" end="3600" vehsPerHour="1000" from="-E11" to="E10" />
+
+    <flow id="flow_WE" type="standard_car" begin="0" end="3600" vehsPerHour="800" from="-E13" to="E12" />
+</routes>
