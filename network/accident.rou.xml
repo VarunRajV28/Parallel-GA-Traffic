@@ -9,7 +9,7 @@
     <flow id="flow_WE" type="standard_car" begin="0" end="3600" vehsPerHour="800" from="-E13" to="E12" departLane="best" />
 
     <vehicle id="broken_car" type="standard_car" route="route_NS" depart="30" departLane="0" departPos="free" color="red">
-        <stop lane="-E10_0" endPos="15" duration="2000"/>
+        <stop lane="-E10_0" endPos="200" duration="2000"/>
     </vehicle>
 
 </routes>
