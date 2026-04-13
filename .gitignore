@@ -9,3 +9,6 @@ __pycache__/
 
 # OS Files
 .DS_Store
+
+# keras files
+*.keras

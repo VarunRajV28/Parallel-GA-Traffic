@@ -1,2 +1,6 @@
 traci
 eclipse-sumo
+numpy
+pandas
+scikit-learn
+tensorflow
