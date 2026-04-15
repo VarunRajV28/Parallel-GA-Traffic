@@ -1,41 +1,67 @@
 import traci
-import csv # We need this to write our dataset!
+import numpy as np
+from tensorflow.keras.models import load_model
+import subprocess # 👈 Used to run isolated programs!
+import ast
 
-# Define the command to start SUMO
-sumoCmd = ["sumo-gui", "-c", "network/sim_accident.sumocfg"]
-TLS_ID = "J16"
+def run_simulation():
+    print("🧠 Loading AI Supervisor...")
+    model = load_model('supervisor_lstm.keras')
 
-# 1. Create and open a new CSV file to record our data
-with open('traffic_data.csv', mode='w', newline='') as file:
-    writer = csv.writer(file)
-    # Write the column headers
-    writer.writerow(["Time_Step", "North_Queue", "East_Queue", "Accident_Active"])
-
-    # Start the simulation
+    sumoCmd = ["sumo-gui", "-c", "network/sim_accident.sumocfg"]
     traci.start(sumoCmd)
-    step = 0
-    
-    print("🚦 Simulation running. Recording data to traffic_data.csv...")
 
-    # Run the loop
-    while step < 3600: # Let's run it for a full hour of simulation time
+    step = 0
+    history_window = []
+    ga_triggered = False 
+
+    print("🚦 Simulation started. Waiting for baseline data...")
+
+    while step < 1000:
         traci.simulationStep()
         
-        # Check queues every second
-        north_queue = traci.edge.getLastStepHaltingNumber("-E10")
-        east_queue = traci.edge.getLastStepHaltingNumber("-E12")
-        
-        # Determine if the accident has happened yet (at step 30)
+        north_q = traci.edge.getLastStepHaltingNumber("-E10")
+        east_q = traci.edge.getLastStepHaltingNumber("-E12")
         accident_active = 1 if step >= 30 else 0
         
-        # Write this exact second of data into the CSV
-        writer.writerow([step, north_queue, east_queue, accident_active])
+        current_state = [north_q / 100.0, east_q / 100.0, accident_active]
+        history_window.append(current_state)
         
-        # Print an update to the console every 100 steps so we know it's working
-        if step % 100 == 0:
-            print(f"Recorded Step {step:04d} | North Q: {north_queue:02d} | East Q: {east_queue:02d}")
+        if len(history_window) > 10:
+            history_window.pop(0)
+            
+        if len(history_window) == 10 and step % 5 == 0 and not ga_triggered:
+            ai_input = np.array([history_window])
+            predicted_queue = int(model.predict(ai_input, verbose=0)[0][0] * 100)
+            
+            print(f"Time {step:03d}s | Actual Q: {north_q:02d} | AI Predicts: {predicted_queue:02d}")
+            
+            if predicted_queue > 15:
+                print("\n🚨 SUPERVISOR ALERT: Massive anomaly predicted! 🚨")
+                print("⏸️ Pausing Main Simulation. Waking up Parallel GA Islands...\n")
                 
+                # 🚀 THE FIX: Run the GA as a completely separate background program
+                subprocess.run(["python", "parallel_ga.py"])
+                
+                # 📖 Read the winning DNA from the text file it just generated
+                with open("winning_dna.txt", "r") as f:
+                    dna_string = f.read().strip()
+                    winning_dna = ast.literal_eval(dna_string) # Turns the string back into a Python List
+                
+                print("\n✅ GA Complete. Best Solution Found:", winning_dna)
+                print("▶️ Applying solution and resuming Main Simulation...\n")
+                
+                # Apply the winning DNA safely
+                if winning_dna[0] > winning_dna[1]:
+                    traci.trafficlight.setPhase("J16", 2) # Force North Green
+                else:
+                    traci.trafficlight.setPhase("J16", 0) # Force East/West Green
+                
+                ga_triggered = True 
+
         step += 1
 
     traci.close()
-    print("✅ Simulation complete! Data saved to traffic_data.csv")
+
+if __name__ == '__main__':
+    run_simulation()
