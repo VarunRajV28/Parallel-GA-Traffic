@@ -40,8 +40,8 @@ def run_simulation():
                 print("\n🚨 SUPERVISOR ALERT: Massive anomaly predicted! 🚨")
                 print("⏸️ Pausing Main Simulation. Waking up Parallel GA Islands...\n")
                 
-                # 🚀 THE FIX: Run the GA as a completely separate background program
-                subprocess.run(["python", "parallel_ga.py"])
+                # 🚀 THE FIX: Run Java and tell it where the TraaS library is
+                subprocess.run(["java", "-cp", ".;lib/TraaS.jar", "ParallelGA"])
                 
                 # 📖 Read the winning DNA from the text file it just generated
                 with open("winning_dna.txt", "r") as f:
