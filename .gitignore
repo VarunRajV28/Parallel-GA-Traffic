@@ -14,3 +14,11 @@ __pycache__/
 *.keras
 *.h5
 *.pb
+
+# java generated class files
+ParallelGA$Chromosome.class
+ParallelGA$IslandTask.class
+ParallelGA.class
+
+# output text file
+winning_dna.txt
