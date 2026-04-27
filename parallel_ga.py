@@ -65,9 +65,9 @@ def evolve_island(population):
         population = next_generation
     return sorted(population, key=calculate_fitness, reverse=True)
 
-# 👇 WE ADDED THIS WRAPPER FUNCTION 👇
+# Wrapper function to run parallel evolution.
 def run_evolution():
-    print("🏝️ INITIALIZING ISLAND MODEL PARALLEL GA 🏝️")
+    print("INITIALIZING ISLAND MODEL PARALLEL GA")
     
     islands = [[create_random_solution() for _ in range(POPULATION_SIZE)] for _ in range(ISLANDS)]
     global_best = None
@@ -87,7 +87,7 @@ def run_evolution():
             global_best = max([island[0] for island in islands], key=calculate_fitness)
             print(f"   -> Global Best so far: {global_best} | Trapped Cars: {-calculate_fitness(global_best)}")
 
-    print("\n🏆 PARALLEL EVOLUTION COMPLETE 🏆")
+    print("\nPARALLEL EVOLUTION COMPLETE")
     with open("winning_dna.txt", "w") as f:
         f.write(str(global_best))
     return global_best

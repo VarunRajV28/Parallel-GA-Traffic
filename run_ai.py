@@ -4,7 +4,7 @@ import pandas as pd
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 
-print("🧠 Waking up the AI Supervisor...")
+print("Waking up the AI Supervisor...")
 
 # 1. Setup the Scaler
 # We need to scale our live data exactly how we scaled the training data.
@@ -16,7 +16,7 @@ scaler.fit(features)
 
 # 2. Load the trained neural network
 model = load_model('supervisor_lstm.keras')
-print("✅ AI Supervisor loaded and ready!")
+print("AI Supervisor loaded and ready.")
 
 # 3. Connect to SUMO
 sumoCmd = ["sumo-gui", "-c", "network/sim_accident.sumocfg"]
@@ -27,7 +27,7 @@ TLS_ID = "J16"
 memory = []
 step = 0
 
-print("🚦 Starting live simulation under AI Control...")
+print("Starting live simulation under AI control...")
 
 while step < 1000: # Running for 1000 seconds
     traci.simulationStep()
@@ -68,11 +68,11 @@ while step < 1000: # Running for 1000 seconds
         # THE TRIGGER MECHANISM (As defined in your research blueprint!)
         # If the AI predicts the queue is going to blow past 10 cars...
         if predicted_queue > 10:
-            print(f"   🚨 [Time: {step}s] AI PREDICTS SEVERE BOTTLENECK! Forcing North Green Light!")
+            print(f"   [Time: {step}s] AI predicts severe bottleneck. Forcing North green light.")
             # Override the light to Phase 2 (North/South Green)
             traci.trafficlight.setPhase(TLS_ID, 2)
             
     step += 1
 
 traci.close()
-print("✅ Simulation complete.")
+print("Simulation complete.")

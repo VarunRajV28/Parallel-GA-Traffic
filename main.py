@@ -1,11 +1,11 @@
 import traci
 import numpy as np
 from tensorflow.keras.models import load_model
-import subprocess # 👈 Used to run isolated programs!
+import subprocess # Used to run isolated programs.
 import ast
 
 def run_simulation():
-    print("🧠 Loading AI Supervisor...")
+    print("Loading AI Supervisor...")
     model = load_model('supervisor_lstm.keras')
 
     sumoCmd = ["sumo-gui", "-c", "network/sim_accident.sumocfg"]
@@ -15,7 +15,7 @@ def run_simulation():
     history_window = []
     ga_triggered = False 
 
-    print("🚦 Simulation started. Waiting for baseline data...")
+    print("Simulation started. Waiting for baseline data...")
 
     while step < 1000:
         traci.simulationStep()
@@ -37,19 +37,19 @@ def run_simulation():
             print(f"Time {step:03d}s | Actual Q: {north_q:02d} | AI Predicts: {predicted_queue:02d}")
             
             if predicted_queue > 15:
-                print("\n🚨 SUPERVISOR ALERT: Massive anomaly predicted! 🚨")
-                print("⏸️ Pausing Main Simulation. Waking up Parallel GA Islands...\n")
+                print("\nSUPERVISOR ALERT: Massive anomaly predicted.")
+                print("Pausing Main Simulation. Waking up Parallel GA Islands...\n")
                 
-                # 🚀 THE FIX: Run Java and tell it where the TraaS library is
+                # Run Java-based GA optimizer.
                 subprocess.run(["java", "ParallelGA"])
                 
-                # 📖 Read the winning DNA from the text file it just generated
+                # Read the winning DNA from the output text file.
                 with open("winning_dna.txt", "r") as f:
                     dna_string = f.read().strip()
                     winning_dna = ast.literal_eval(dna_string) # Turns the string back into a Python List
                 
-                print("\n✅ GA Complete. Best Solution Found:", winning_dna)
-                print("▶️ Applying solution and resuming Main Simulation...\n")
+                print("\nGA complete. Best solution found:", winning_dna)
+                print("Applying solution and resuming Main Simulation...\n")
                 
                 # Apply the winning DNA safely
                 if winning_dna[0] > winning_dna[1]:

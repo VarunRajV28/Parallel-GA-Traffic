@@ -5,7 +5,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 import os
 
-print("🧠 Loading traffic data...")
+print("Loading traffic data...")
 # 1. Load the dataset you just created
 df = pd.read_csv('traffic_data.csv')
 
@@ -27,10 +27,10 @@ for i in range(len(scaled_data) - time_steps):
 
 X, y = np.array(X), np.array(y)
 
-print(f"📊 Training data shape: {X.shape} (Samples, Time Steps, Features)")
+print(f"Training data shape: {X.shape} (Samples, Time Steps, Features)")
 
 # 4. Build the LSTM Neural Network
-print("🏗️ Building the LSTM Model...")
+print("Building the LSTM model...")
 model = Sequential()
 # The LSTM layer with 50 'neurons'
 model.add(LSTM(units=50, return_sequences=False, input_shape=(X.shape[1], X.shape[2])))
@@ -40,10 +40,10 @@ model.add(Dense(units=1))
 model.compile(optimizer='adam', loss='mean_squared_error')
 
 # 5. Train the Brain!
-print("🚀 Training starting... (This might take a minute)")
+print("Training starting... (This might take a minute)")
 # Epochs = how many times it reads the dataset. Batch_size = how many rows it memorizes at once.
 model.fit(X, y, epochs=20, batch_size=32, verbose=1)
 
 # 6. Save the trained model to your folder
 model.save('supervisor_lstm.keras')
-print("✅ Training complete! Model saved as 'supervisor_lstm.keras'")
+print("Training complete. Model saved as 'supervisor_lstm.keras'")

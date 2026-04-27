@@ -28,7 +28,7 @@ public class ParallelGA {
             calculateFitness();
         }
 
-        // 🚨 THE MACROSCOPIC HEURISTIC (Lightning Fast Math) 🚨
+        // Macroscopic heuristic (fast fitness estimate)
         public void calculateFitness() {
             // We want maximum North/South Green time, minimum East/West Green time
             // and we heavily reward deploying the movable partition (1)
