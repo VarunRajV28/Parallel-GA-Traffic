@@ -7,4 +7,7 @@
         <begin value="0"/>
         <end value="3600"/>
     </time>
+    <output>
+        <tripinfo-output value="tripinfo_output.xml"/>
+    </output>
 </configuration>
