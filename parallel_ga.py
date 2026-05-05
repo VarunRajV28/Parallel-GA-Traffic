@@ -1,3 +1,5 @@
+import xml.etree.ElementTree as ET
+import os
 import random
 import multiprocessing
 import traci
@@ -92,5 +94,74 @@ def run_evolution():
         f.write(str(global_best))
     return global_best
 
+def calculate_simulation_metrics(tripinfo_file="network/tripinfo_output.xml", cycle_time=90, sim_time=3600):
+    """
+    Extracts Average Delay Time (D) and Number of Stops per Cycle (NS) 
+    from SUMO's tripinfo output.
+    """
+    if not os.path.exists(tripinfo_file):
+        print(f"Error: {tripinfo_file} not found. Did the simulation finish?")
+        return None, None
+
+    tree = ET.parse(tripinfo_file)
+    root = tree.getroot()
+
+    total_waiting_time = 0.0
+    total_stops = 0
+    vehicle_count = 0
+
+    # Parse every vehicle's trip data
+    for trip in root.findall('tripinfo'):
+        total_waiting_time += float(trip.get('waitingTime'))
+        total_stops += int(trip.get('waitingCount'))
+        vehicle_count += 1
+
+    if vehicle_count == 0:
+        return 0.0, 0.0
+
+    # D: Average Delay Time (seconds)
+    average_delay_time = total_waiting_time / vehicle_count
+    
+    # NS: Number of vehicles suffering stops per cycle
+    total_cycles = sim_time / cycle_time
+    stops_per_cycle = total_stops / total_cycles
+
+    print(f"--- Simulation Results ---")
+    print(f"Total Vehicles Processed: {vehicle_count}")
+    print(f"Average Delay Time (D): {average_delay_time:.2f} seconds")
+    print(f"Stops Per Cycle (NS): {stops_per_cycle:.2f} stops")
+
+    return average_delay_time, stops_per_cycle
+
+def evaluate_winning_dna(best_solution):
+    print("\n--- Evaluating Winning DNA on Full 3600s Simulation ---")
+    ns_green, ew_green, _ = best_solution
+    
+    # Start a standard 3600s simulation using the accident config
+    sumoCmd = ["sumo", "-c", "network/sim_accident.sumocfg", "--no-step-log", "true", "--no-warnings", "true"]
+    traci.start(sumoCmd)
+    
+    step = 0
+    # Run for the full 3600 seconds
+    while step < 3600:
+        traci.simulationStep()
+        
+        # Apply the static phase discovered by the GA
+        if ns_green > ew_green:
+            traci.trafficlight.setPhase("J16", 2) 
+        else:
+            traci.trafficlight.setPhase("J16", 0)
+            
+        step += 1
+        
+    traci.close()
+    
+    # Calculate the metrics from this full run
+    calculate_simulation_metrics()
+
 if __name__ == "__main__":
-    run_evolution()
+    # 1. Run the evolution to find the best signal timings
+    best_dna = run_evolution()
+    
+    # 2. Run a full simulation using that winning DNA to get D and NS
+    evaluate_winning_dna(best_dna)
